@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">PKU Helper Helper</string>
+
+    <string name="new_features">新功能</string>
+    <string name="long_click_to_copy">长按复制</string>
+    <string name="long_click_to_copy_details">在树洞中，可以通过长按复制主题或回复中的文字</string>
+    <string name="long_click_to_save_picture">长按保存图片</string>
+    <string name="long_click_to_save_picture_details">在树洞中打开图片后，可以通过长按将图片保存</string>
+
+    <string name="bug_fixes">BUG修复</string>
+
+    <string name="TODO">待续……</string>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <PreferenceCategory android:title="@string/new_features">
+        <SwitchPreference
+            android:key="long_click_to_copy"
+            android:title="@string/long_click_to_copy"
+            android:summary="@string/long_click_to_copy_details"/>
+        <SwitchPreference
+            android:key="long_click_to_save_picture"
+            android:title="@string/long_click_to_save_picture"
+            android:summary="@string/long_click_to_save_picture_details"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/bug_fixes">
+        <Preference android:enabled="false" android:title="@string/TODO"/>
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>
