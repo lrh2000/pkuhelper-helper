@@ -23,6 +23,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -183,6 +184,8 @@ public class XposedHook implements IXposedHookLoadPackage {
                         }
                     });
 
+            final AtomicBoolean isLongClickVaild = new AtomicBoolean(false);
+
             XposedHelpers.findAndHookMethod("uk.co.senab.photoview.PhotoViewAttacher",
                     lpparam.classLoader, "onTouch",
                     View.class, MotionEvent.class,
@@ -191,6 +194,18 @@ public class XposedHook implements IXposedHookLoadPackage {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             super.afterHookedMethod(param);
                             param.setResult(false);
+
+                            switch (((MotionEvent) param.args[1]).getActionMasked()) {
+                                case MotionEvent.ACTION_DOWN:
+                                    isLongClickVaild.set(true);
+                                    break;
+                                case MotionEvent.ACTION_POINTER_DOWN:
+                                case MotionEvent.ACTION_MOVE:
+                                case MotionEvent.ACTION_UP:
+                                case MotionEvent.ACTION_CANCEL:
+                                    isLongClickVaild.set(false);
+                                    break;
+                            }
                         }
                     });
 
@@ -229,7 +244,7 @@ public class XposedHook implements IXposedHookLoadPackage {
                             imageView.setOnLongClickListener(new View.OnLongClickListener() {
                                 @Override
                                 public boolean onLongClick(View view) {
-                                    if (!ConfigManager.getLongClickToSavePicture())
+                                    if (!ConfigManager.getLongClickToSavePicture() || !isLongClickVaild.get())
                                         return false;
                                     Bitmap bitmap = availableBitmap;
                                     if (bitmap == null) {
