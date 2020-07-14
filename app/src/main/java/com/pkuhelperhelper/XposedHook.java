@@ -8,6 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,9 +38,6 @@ public class XposedHook implements IXposedHookLoadPackage {
     static private ConfigObserver configUpdater = null;
 
     static private ClipboardManager clipboardManager = null;
-
-    static private ImageView pendingImageView = null;
-    static private Bitmap availableBitmap = null;
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
@@ -209,22 +207,6 @@ public class XposedHook implements IXposedHookLoadPackage {
                         }
                     });
 
-            XposedHelpers.findAndHookMethod("com.squareup.picasso.PicassoDrawable",
-                    lpparam.classLoader, "setBitmap",
-                    ImageView.class, Context.class, Bitmap.class,
-                    lpparam.classLoader.loadClass("com.squareup.picasso.Picasso$LoadedFrom"),
-                    boolean.class, boolean.class,
-                    new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            super.beforeHookedMethod(param);
-                            if (pendingImageView == param.args[0]) {
-                                pendingImageView = null;
-                                availableBitmap = (Bitmap) param.args[2];
-                            }
-                        }
-                    });
-
             XposedHelpers.findAndHookMethod("com.pkuhelper.container.image.ImagePreviewActivity",
                     lpparam.classLoader, "setupContent",
                     new XC_MethodHook() {
@@ -246,8 +228,9 @@ public class XposedHook implements IXposedHookLoadPackage {
                                 public boolean onLongClick(View view) {
                                     if (!ConfigManager.getLongClickToSavePicture() || !isLongClickVaild.get())
                                         return false;
-                                    Bitmap bitmap = availableBitmap;
-                                    if (bitmap == null) {
+                                    BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+                                    Bitmap bitmap;
+                                    if (drawable == null || (bitmap = drawable.getBitmap()) == null) {
                                         Toast.makeText(context, "The picture is not ready now.", Toast.LENGTH_LONG).show();
                                         return true;
                                     }
@@ -278,9 +261,6 @@ public class XposedHook implements IXposedHookLoadPackage {
                                     }
                                 }
                             });
-
-                            pendingImageView = imageView;
-                            availableBitmap = null;
                         }
                     });
         }
